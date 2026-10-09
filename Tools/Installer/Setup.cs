@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
-class Setup : Form
+partial class Setup : Form
 {
     const string Model = "qwen2.5:1.5b";
     Label info = new Label { Dock = DockStyle.Top, Height = 70 };
@@ -51,26 +51,26 @@ class Setup : Form
     {
         if (target != null) root = Path.GetFullPath(target);
         sourceBlobs = blobs;
-        Text = "音潮行情 · 一键安装 v0.9.10";
-        Size = new Size(650, 420); StartPosition = FormStartPosition.CenterScreen;
-        Font = new Font("Microsoft YaHei UI", 10); MinimumSize = Size;
-        info.Text = "主程序、独立 .NET 和 Ollama 引擎均已内置，无需联网。\r\n完整安装另下载约 986 MB 模型；离线安装跳过下载。无需管理员权限。\r\n位置：" + root;
-        Controls.Add(log); Controls.Add(offlineChoice); Controls.Add(fullChoice); Controls.Add(info); Controls.Add(install);
-        offlineChoice.CheckedChanged += delegate { if (!busy) install.Text = offlineChoice.Checked ? "一键离线安装" : "一键安装全部组件"; };
-        report = delegate(string text) { if (!IsDisposed) BeginInvoke(new Action(delegate { log.AppendText(text + "\r\n"); })); };
+        BuildInterface(target != null);
+        offlineChoice.CheckedChanged += delegate { if (!busy && !completed) install.Text = offlineChoice.Checked ? "开始离线安装" : "开始完整安装"; };
+        report = delegate(string text) { if (!IsDisposed && IsHandleCreated) BeginInvoke(new Action(delegate { ReportStatus(text); })); };
         install.Click += async delegate
         {
+            if (completed) { Process.Start(new ProcessStartInfo(Path.Combine(root, "App", "MusicTide.exe")) { WorkingDirectory = Path.Combine(root, "App"), UseShellExecute = true }); Close(); return; }
+            try { root = ValidateInstallPath(pathBox.Text); }
+            catch (Exception e) { MessageBox.Show(this, e.Message, "安装目录不可用", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             offlineMode = offlineChoice.Checked;
-            busy = true; install.Enabled = false; fullChoice.Enabled = offlineChoice.Enabled = false;
+            busy = true; install.Enabled = false; fullChoice.Enabled = offlineChoice.Enabled = false; pathBox.Enabled = browse.Enabled = false;
             try
             {
                 await Task.Run(delegate { Install(true); });
                 report(offlineMode ? "离线安装完成。AI 模型可在联网后补装。" : "安装完成。AI 在本机运行，首次加载模型可能需要一点时间。");
-                install.Text = "安装完成";
-                Process.Start(new ProcessStartInfo(Path.Combine(root, "App", "MusicTide.exe")) { WorkingDirectory = Path.Combine(root, "App"), UseShellExecute = true });
+                completed = true; install.Text = "启动音潮行情"; install.Enabled = true;
+                progressValue = 100; progressPanel.Invalidate(); status.Text = "安装完成";
+                detail.Text = offlineMode ? "基础组件已就绪，本地 AI 可以联网后补装。" : "所有组件已就绪，可以开始听歌。";
             }
-            catch (Exception e) { report("安装未完成：" + e.Message + "\r\n保留下载进度，点击按钮可重试。"); install.Enabled = true; }
-            finally { busy = false; fullChoice.Enabled = offlineChoice.Enabled = true; }
+            catch (Exception e) { ReportStatus("安装未完成：" + e.Message + "\r\n保留下载进度，点击按钮可重试。"); install.Text = "重试安装"; install.Enabled = true; }
+            finally { busy = false; if (!completed) { fullChoice.Enabled = offlineChoice.Enabled = true; pathBox.Enabled = true; browse.Enabled = !fixedTarget; } }
         };
         FormClosing += delegate(object sender, FormClosingEventArgs e)
         { if (busy) { e.Cancel = true; MessageBox.Show(this, "安装正在进行，请等待完成或失败后再关闭。"); } };
@@ -152,7 +152,7 @@ class Setup : Form
             string menu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "MusicTide");
             Directory.CreateDirectory(menu); MakeShortcut(Path.Combine(menu, "音潮行情.lnk"), app);
         }
-        File.WriteAllText(Path.Combine(root, "installation.txt"), "MusicTide 0.9.10\r\nPrivate .NET 9.0.20\r\nOllama CPU\r\nModel " + Model + "\r\n" + DateTime.Now.ToString("s"));
+        File.WriteAllText(Path.Combine(root, "installation.txt"), "MusicTide 0.9.11\r\nPrivate .NET 9.0.20\r\nOllama CPU\r\nModel " + Model + "\r\n" + DateTime.Now.ToString("s"));
         report("完成：" + Path.Combine(app, "MusicTide.exe"));
     }
 
@@ -196,7 +196,7 @@ class Setup : Form
                 long offset = File.Exists(partial) ? new FileInfo(partial).Length : 0;
                 var request = (HttpWebRequest)WebRequest.Create(url);
                 request.Timeout = 30000; request.ReadWriteTimeout = 30000;
-                request.UserAgent = "MusicTideSetup/0.9.10";
+                request.UserAgent = "MusicTideSetup/0.9.11";
                 if (offset > 0) request.AddRange(offset);
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
@@ -208,13 +208,19 @@ class Setup : Form
                     using (var output = new FileStream(partial, resumed ? FileMode.Append : FileMode.Create))
                     {
                         byte[] buffer = new byte[262144]; int count; long received = offset; long next = offset;
+                        var transferClock = Stopwatch.StartNew(); double nextProgress = 0;
                         while ((count = input.Read(buffer, 0, buffer.Length)) > 0)
                         {
                             output.Write(buffer, 0, count); received += count;
+                            if (transferClock.Elapsed.TotalSeconds >= nextProgress || received == total) {
+                                DownloadProgress(received, total, (received - offset) / 1048576.0 / Math.Max(.01, transferClock.Elapsed.TotalSeconds));
+                                nextProgress = transferClock.Elapsed.TotalSeconds + .25;
+                            }
                             if (received >= next) { report("模型下载 " + (received / 1048576) + " / " + (total > 0 ? (total / 1048576).ToString() : "?") + " MB"); next = received + 8388608; }
                         }
                     }
                 }
+                report("下载完成，正在校验模型 SHA256…");
                 if (Hash(partial) != hash) { File.Delete(partial); throw new IOException("模型 SHA256 校验失败。"); }
                 if (File.Exists(target)) File.Delete(target);
                 File.Move(partial, target); return;

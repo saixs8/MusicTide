@@ -9,7 +9,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets/AppIcon.ico</ApplicationIcon>
     <AssemblyName>MusicTide</AssemblyName>
-    <Version>0.9.10</Version>
+    <Version>0.9.11</Version>
     <Product>音潮行情</Product>
     <AssemblyTitle>音潮行情</AssemblyTitle>
     <Description>音潮行情：音乐频谱、实时歌词与 K 线行情终端</Description>

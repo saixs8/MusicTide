@@ -1,6 +1,6 @@
 # 音潮行情 · MusicTide
 
-**v0.9.10 · Windows 音乐行情桌面程序 · 源码公开，限非商业使用**
+**v0.9.11 · Windows 音乐行情桌面程序 · 源码公开，限非商业使用**
 
 把电脑正在播放的音乐转换为实时频谱、虚拟股票行情和 K 线，配合歌词资讯、本机 AI 情绪学习、高潮连板及歌曲对比。支持拖到 USB／HDMI 副屏并全屏显示。
 
@@ -12,10 +12,10 @@
 
 | 交付物 | 用途 |
 |---|---|
-| [MusicTideSetup-v0.9.10.exe](https://github.com/saixs8/MusicTide/releases/download/v0.9.10/MusicTideSetup-v0.9.10.exe) | 普通用户一键安装；自带私有 .NET 和 Ollama CPU 引擎 |
-| [MusicTide-Source-v0.9.10.zip](https://github.com/saixs8/MusicTide/releases/download/v0.9.10/MusicTide-Source-v0.9.10.zip) | 源码、文档、许可及工具；不含模型、用户数据和构建缓存 |
+| [MusicTideSetup-v0.9.11.exe](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/MusicTideSetup-v0.9.11.exe) | 普通用户一键安装；自带私有 .NET 和 Ollama CPU 引擎 |
+| [MusicTide-Source-v0.9.11.zip](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/MusicTide-Source-v0.9.11.zip) | 源码、文档、许可及工具；不含模型、用户数据和构建缓存 |
 | `Output-Major/MusicTide.exe` | 本地手动发布版；需 .NET 9 Desktop Runtime，复制时保留同目录依赖 |
-| [Setup-SHA256.json](https://github.com/saixs8/MusicTide/releases/download/v0.9.10/Setup-SHA256.json) | 安装包 SHA256 校验记录 |
+| [Setup-SHA256.json](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/Setup-SHA256.json) | 安装包 SHA256 校验记录 |
 
 运行环境：Windows 10 2004／19041 或更新、Windows 11，Intel／AMD x64。ARM64 原生运行未验证。开发需 .NET 9 SDK。
 
@@ -124,3 +124,6 @@ MusicTide/
 **音潮行情 MusicTide 是面向音乐爱好者的 Windows 桌面可视化工具。项目公开源码供学习、研究、修改和非商业分享，未经书面授权禁止商用。可把正在播放的音乐转换为实时频谱、虚拟 K 线、歌词资讯和音乐玩法，并通过本机 AI 辅助歌词情绪分析。所有行情均为虚拟音乐数据。**
 
 本项目自己的代码使用 [非商业源码许可](LICENSE)。.NET、Ollama、Qwen 模型及底层库按各自原许可分发；歌词、音乐及第三方品牌不由本项目重新授权。详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+### v0.9.11 安装向导
+安装目录可以手工输入或通过浏览选择。界面采用深色风格、青色主按钮，显示组件选择、安装阶段、模型下载百分比/大小/速度，日志可展开。安装完成后点击启动。安装器窗口、EXE、顶部 Logo 与快捷方式使用音潮行情图标。AI 补装沿用当前安装目录。

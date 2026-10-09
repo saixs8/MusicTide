@@ -1,11 +1,11 @@
 # 发布文件
 
-当前版本 **v0.9.10**。本目录只保留最新交付物，中间素材位于 `../Build/Installer`。
+当前版本 **v0.9.11**。本目录只保留最新交付物，中间素材位于 `../Build/Installer`。
 
 | 文件 | 内容 |
 |---|---|
-| `MusicTideSetup-v0.9.10.exe` | Windows x64 一键安装器，支持完整／离线安装 |
-| `MusicTide-Source-v0.9.10.zip` | 干净源码、文档及非商业许可 |
+| `MusicTideSetup-v0.9.11.exe` | Windows x64 一键安装器，支持完整／离线安装 |
+| `MusicTide-Source-v0.9.11.zip` | 干净源码、文档及非商业许可 |
 | `Setup-SHA256.json` / `Source-SHA256.json` | 对应文件的 SHA256 |
 
 ## 安装
@@ -32,3 +32,5 @@ powershell -File Tools/BuildSourcePackage.ps1
 ```
 
 从项目根目录执行，先准备安装素材。读取 csproj 版本号，新包生成成功后才替换旧版本并更新 SHA256；正式目录各保留一个最新安装包和源码包。
+
+安装前可通过安装位置输入框和浏览按钮选择独立文件夹，支持空格和中文路径。补装 AI 时锁定现有安装位置，避免补装到另一个目录。下载界面显示百分比、已下载大小及速度；安装完成后点击启动软件。
