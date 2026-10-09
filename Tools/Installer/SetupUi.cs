@@ -27,7 +27,11 @@ partial class Setup
         AutoScaleMode = AutoScaleMode.Dpi;
         using (var iconStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("app.ico"))
             if (iconStream != null) Icon = new Icon(iconStream);
-        Controls.Add(new PictureBox { Bounds = new Rectangle(28, 27, 50, 50), Image = Icon.ToBitmap(), SizeMode = PictureBoxSizeMode.Zoom });
+        Image logo = null;
+        using (var logoStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("app.png"))
+            if (logoStream != null) using (var image = Image.FromStream(logoStream)) logo = new Bitmap(image);
+        Controls.Add(new PictureBox { Bounds = new Rectangle(28, 27, 50, 50), Image = logo, SizeMode = PictureBoxSizeMode.Zoom });
+        Disposed += delegate { if (logo != null) logo.Dispose(); };
         Label title = TextLabel("音潮行情  MusicTide", 96, 24, 630, 36, Color.White, 22, true);
         Controls.Add(title);
         Controls.Add(TextLabel("让音乐成为行情", 98, 68, 600, 26, accent, 11, false));
