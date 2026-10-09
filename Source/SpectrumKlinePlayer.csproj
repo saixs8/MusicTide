@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Assets/AppIcon.ico</ApplicationIcon>
+    <AssemblyName>MusicTide</AssemblyName>
+    <Version>0.9.10</Version>
+    <Product>音潮行情</Product>
+    <AssemblyTitle>音潮行情</AssemblyTitle>
+    <Description>音潮行情：音乐频谱、实时歌词与 K 线行情终端</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/AppIcon.ico" LogicalName="SpectrumKlinePlayer.AppIcon.ico" />
+  </ItemGroup>
+</Project>

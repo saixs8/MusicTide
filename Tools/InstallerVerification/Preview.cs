@@ -1,0 +1,2 @@
+﻿using System;using System.Reflection;using System.Drawing;using System.Windows.Forms;
+class Preview{[STAThread]static void Main(string[] a){Application.EnableVisualStyles();var type=Assembly.LoadFrom(a[0]).GetType("Setup");var c=type.GetConstructor(BindingFlags.Instance|BindingFlags.NonPublic,null,new[]{typeof(string),typeof(string)},null);using(var f=(Form)c.Invoke(new object[]{null,null})){f.Show();Application.DoEvents();using(var b=new Bitmap(f.Width,f.Height)){f.DrawToBitmap(b,new Rectangle(Point.Empty,b.Size));b.Save(a[1]);}f.Close();}}}

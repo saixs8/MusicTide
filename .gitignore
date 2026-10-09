@@ -1,0 +1,36 @@
+# Build output
+**/bin/
+**/obj/
+*.csproj.user
+
+# Published binaries and local user data
+Output-Major/
+
+# Historical scratch and generated fixtures
+Archive/
+Runtime/Ollama/Models/
+Runtime/Ollama/*.exe
+Runtime/Ollama/*.dll
+Runtime/Ollama/*.zip
+Runtime/Ollama/*.log
+Runtime/Ollama/lib/
+Tools/LyricVerification/*.lrc
+
+# Local editor state
+.vs/
+
+# Release files and private build/test data
+Build/
+Distribution/*
+!Distribution/README.md
+Runtime/
+Assets/VideoCovers/
+Docs/Logs/
+Docs/Diagnostics/
+Docs/UiPreview/*
+!Docs/UiPreview/README.md
+Tools/**/*.exe
+Tools/**/*.zip
+Tools/**/*.png
+Tools/**/*.log
+Tools/**/*.lrc
