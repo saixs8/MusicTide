@@ -112,32 +112,70 @@ public sealed class MusicPlayground
     public static string EffectName(LyricEffect effect) => effect switch { LyricEffect.Attack => "进攻", LyricEffect.Retreat => "回落", LyricEffect.Volatile => "放大波动", _ => "稳定走势" };
 }
 
-public sealed record TradeFill(double Seconds, string Side, int Quantity, double Price, double Equity, string Lyric);
-public sealed record TradeRound(string Song, DateTime StartedAt, double FinalEquity, TradeFill[] Fills);
+public sealed record TradeFill(double Seconds, string Side, int Quantity, double Price, double Equity, string Lyric,
+    int Leverage = 1, double Margin = 0, double? RealizedProfit = null);
+public sealed record TradeRound(string Song, DateTime StartedAt, double FinalEquity, TradeFill[] Fills,
+    double? RealizedProfit = null, double? UnrealizedProfit = null, int EndingPosition = 0, double EndingMargin = 0);
 public sealed class PaperTrading
 {
     public const double StartingCash = 100000;
     public double Cash { get; private set; } = StartingCash;
     public int Shares { get; private set; }
     public double Cost { get; private set; }
+    public int Leverage { get; private set; } = 1;
+    public double Margin { get; private set; }
+    public double RealizedProfit { get; private set; }
+    public static readonly int[] LeverageChoices = [1, 2, 3, 5, 10];
+    public double UnrealizedProfit(double price) => Shares == 0 ? 0 : Shares * (price - Cost);
     public readonly List<TradeFill> Fills = new();
     public long Revision { get; private set; }
-    public double Equity(double price) => Cash + Shares * price;
-    public void Reset() { Cash = StartingCash; Shares = 0; Cost = 0; Fills.Clear(); Revision++; }
+    public double Equity(double price) => Cash + Margin + UnrealizedProfit(price);
+    public void Reset() { Cash = StartingCash; Shares = 0; Cost = 0; Margin = 0; RealizedProfit = 0; Fills.Clear(); Revision++; }
+    public bool SetLeverage(int leverage)
+    {
+        if (Shares != 0 || !LeverageChoices.Contains(leverage)) return false;
+        Leverage = leverage; Revision++; return true;
+    }
     public bool Buy(double price, double fraction, double seconds, string lyric)
     {
-        if (!double.IsFinite(price) || price <= 0 || fraction <= 0 || fraction > 1 || Fills.Count >= 2000) return false;
-        int quantity = (int)Math.Min(int.MaxValue, Math.Floor(Cash * fraction / price));
-        if (quantity <= 0) return false;
-        Cost = (Cost * Shares + quantity * price) / (Shares + quantity);
-        Cash -= quantity * price; Shares += quantity;
-        Fills.Add(new(seconds, "买入", quantity, price, Equity(price), lyric)); Revision++; return true;
+        return Open(price, fraction, seconds, lyric, false);
+    }
+    public bool Short(double price, double fraction, double seconds, string lyric) => Open(price, fraction, seconds, lyric, true);
+    private bool Open(double price, double fraction, double seconds, string lyric, bool shortSide)
+    {
+        int direction = shortSide ? -1 : 1;
+        if (!double.IsFinite(price) || price <= 0 || !double.IsFinite(fraction) || fraction <= 0 || fraction > 1
+            || Cash <= 0 || Fills.Count >= 2000 || Shares != 0 && Math.Sign(Shares) != direction) return false;
+        double count = Math.Min(int.MaxValue - Math.Abs(Shares), Math.Floor(Cash * fraction * Leverage / price));
+        if (count < 1) return false;
+        int quantity = (int)count;
+        double collateral = quantity * price / Leverage;
+        if (collateral > Cash + .000001) return false;
+        Cost = (Cost * Math.Abs(Shares) + quantity * price) / (Math.Abs(Shares) + quantity);
+        Cash = Math.Max(0, Cash - collateral); Margin += collateral; Shares += direction * quantity;
+        Fills.Add(new(seconds, shortSide ? "开空" : "开多", quantity, price, Equity(price), lyric, Leverage, Margin, 0));
+        Revision++; return true;
     }
     public bool Sell(double price, double seconds, string lyric)
     {
-        if (!double.IsFinite(price) || price <= 0 || Shares == 0 || Fills.Count >= 2000) return false;
-        int quantity = Shares; Cash += Shares * price; Shares = 0; Cost = 0;
-        Fills.Add(new(seconds, "卖出", quantity, price, Equity(price), lyric)); Revision++; return true;
+        return Close(price, 1, seconds, lyric);
+    }
+    public bool Close(double price, double fraction, double seconds, string lyric, bool forced = false)
+    {
+        if (!double.IsFinite(price) || price <= 0 || !double.IsFinite(fraction) || fraction <= 0 || fraction > 1 || Shares == 0) return false;
+        int held = Math.Abs(Shares), direction = Math.Sign(Shares);
+        int quantity = fraction == 1 ? held : Math.Max(1, (int)Math.Floor(held * fraction));
+        double released = Margin * quantity / held;
+        double profit = direction * quantity * (price - Cost);
+        Cash += released + profit; Margin -= released; RealizedProfit += profit; Shares -= direction * quantity;
+        if (Shares == 0) { Margin = 0; Cost = 0; }
+        Fills.Add(new(seconds, forced ? "强制平仓" : direction > 0 ? "平多" : "平空", quantity, price, Equity(price), lyric, Leverage, Margin, profit));
+        Revision++; return true;
+    }
+    public bool CheckLiquidation(double price, double seconds, string lyric)
+    {
+        if (Shares == 0 || !double.IsFinite(price) || price <= 0 || Equity(price) > Margin * .2) return false;
+        return Close(price, 1, seconds, lyric, true);
     }
 }
 

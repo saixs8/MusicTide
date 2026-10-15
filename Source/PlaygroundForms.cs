@@ -75,43 +75,35 @@ public sealed class PaperTradingForm : Form
     private readonly System.Windows.Forms.Timer refresh = new() { Interval = 250 };
     private readonly PaperTrading account;
     private readonly Func<(string Song, double Price, double Seconds, bool Enabled)> quote;
-    private readonly Label balance = PlaygroundUi.Label("", 106);
+    private readonly Label balance = PlaygroundUi.Label("", 146);
     private readonly DataGridView journal = PlaygroundUi.Grid();
-    private readonly List<Button> orders = new();
     private long lastCount = -1;
-    public PaperTradingForm(PaperTrading account, Func<(string, double, double, bool)> quote, Func<bool, double, bool> order, Action reset, Func<TradeRound[]> history)
+    public PaperTradingForm(PaperTrading account, Func<(string, double, double, bool)> quote, Func<TradeRound[]> history)
     {
         this.account = account; this.quote = quote;
-        PlaygroundUi.Theme(this, "虚拟打板挑战 · 操作回顾", new(1100, 720));
+        PlaygroundUi.Theme(this, "模拟交易 · 盈亏与成交明细", new(1100, 720));
+        using (var stream = typeof(Form1).Assembly.GetManifestResourceStream("SpectrumKlinePlayer.AppIcon.ico"))
+            if (stream is not null) { using var icon = new Icon(stream); Icon = (Icon)icon.Clone(); }
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 60, Padding = new(9), WrapContents = false };
-        foreach (double fraction in new[] { .25, .5, 1 })
-        {
-            var button = PlaygroundUi.Button($"买入 {fraction:P0}", () => { if (!order(true, fraction)) MessageBox.Show(this, "当前不能成交：请等待歌曲播放，或检查可用虚拟资金。"); UpdateAccount(); });
-            orders.Add(button); buttons.Controls.Add(button);
-        }
-        var sell = PlaygroundUi.Button("全部卖出", () => { if (!order(false, 1)) MessageBox.Show(this, "当前没有持仓或歌曲未在播放。"); UpdateAccount(); });
-        orders.Add(sell); buttons.Controls.Add(sell);
-        buttons.Controls.Add(PlaygroundUi.Button("新一局", () => { reset(); lastCount = -1; UpdateAccount(); }));
         buttons.Controls.Add(PlaygroundUi.Button("历史战绩", () => ShowTradeHistory(history())));
         Controls.Add(journal); Controls.Add(buttons); Controls.Add(balance);
-        Controls.Add(PlaygroundUi.Label("每首歌曲初始虚拟资金 100,000；买入比例按可用现金计算。按当前音乐指数即时成交，无手续费与封板排队。\n切歌自动结束本局并开新局；下表保存每笔操作对应的播放时间、价格和歌词。", 85));
+        Controls.Add(PlaygroundUi.Label("操作位于主界面底部工作栏，本窗口只查看持仓、盈亏和成交。初始虚拟资金 100,000，1–10 倍杠杆。\n按可用保证金比例开仓，按持仓比例平仓；权益 ≤ 占用保证金的 20% 时模拟强平。跳空可能产生负权益。\n无手续费、利息及滑点；切歌结束本局并开新局，重启不恢复持仓。旧记录缺失的单笔盈亏显示为 --。", 112));
         refresh.Tick += (_, _) => UpdateAccount(); refresh.Start(); FormClosed += (_, _) => { refresh.Stop(); refresh.Dispose(); };
         UpdateAccount();
     }
     private void UpdateAccount()
     {
         var q = quote(); double equity = account.Equity(q.Price);
-        balance.Text = $"{q.Song}   {(int)q.Seconds / 60:00}:{(int)q.Seconds % 60:00}   音乐指数 {q.Price:F2}\n现金 {account.Cash:N2}   持仓 {account.Shares:N0}   成本 {account.Cost:F2}\n总权益 {equity:N2}   本局收益 {(equity / PaperTrading.StartingCash - 1):P2}";
-        foreach (var button in orders) button.Enabled = q.Enabled;
+        balance.Text = $"{q.Song}   {(int)q.Seconds / 60:00}:{(int)q.Seconds % 60:00}   音乐指数 {q.Price:F2}\n可用保证金 {account.Cash:N2}   占用保证金 {account.Margin:N2}   杠杆 {account.Leverage}×\n方向 {(account.Shares == 0 ? "空仓" : account.Shares > 0 ? "做多" : "做空")}   持仓 {Math.Abs(account.Shares):N0}   成本 {account.Cost:F2}   浮动盈亏 {account.UnrealizedProfit(q.Price):+0.00;-0.00;0.00}\n已实现 {account.RealizedProfit:+0.00;-0.00;0.00}   总权益 {equity:N2}   本局收益 {(equity / PaperTrading.StartingCash - 1):P2}";
         if (lastCount == account.Revision) return;
         lastCount = account.Revision;
-        journal.DataSource = account.Fills.AsEnumerable().Reverse().Select(f => new { 时间 = $"{(int)f.Seconds / 60:00}:{(int)f.Seconds % 60:00}", 操作 = f.Side, 数量 = f.Quantity, 成交指数 = f.Price.ToString("F2"), 当时权益 = f.Equity.ToString("F2"), 歌词 = f.Lyric }).ToArray();
+        journal.DataSource = account.Fills.AsEnumerable().Reverse().Select(f => new { 时间 = $"{(int)f.Seconds / 60:00}:{(int)f.Seconds % 60:00}", 操作 = f.Side, 杠杆 = f.Leverage + "×", 数量 = f.Quantity, 成交指数 = f.Price.ToString("F2"), 已实现盈亏 = f.RealizedProfit?.ToString("+0.00;-0.00;0.00") ?? "--", 保证金 = f.Margin.ToString("F2"), 当时权益 = f.Equity.ToString("F2"), 歌词 = f.Lyric }).ToArray();
     }
     private void ShowTradeHistory(TradeRound[] rounds)
     {
         var records = rounds.Reverse().ToArray();
         var window = PlaygroundUi.ShowRows(this, "虚拟打板 · 历史战绩",
-            records.Select(r => new { 歌曲 = r.Song, 开始 = r.StartedAt.ToString("MM-dd HH:mm"), 结束权益 = r.FinalEquity.ToString("F2"), 收益率 = (r.FinalEquity / PaperTrading.StartingCash - 1).ToString("P2"), 成交次数 = r.Fills.Length }).ToArray(),
+            records.Select(r => new { 歌曲 = r.Song, 开始 = r.StartedAt.ToString("MM-dd HH:mm"), 结束权益 = r.FinalEquity.ToString("F2"), 已实现 = r.RealizedProfit?.ToString("F2") ?? "--", 浮动盈亏 = r.UnrealizedProfit?.ToString("F2") ?? "--", 结束保证金 = r.EndingMargin.ToString("F2"), 收益率 = (r.FinalEquity / PaperTrading.StartingCash - 1).ToString("P2"), 成交次数 = r.Fills.Length }).ToArray(),
             "切歌、退出或新一局时保存战绩。未卖出的持仓按结束时的音乐指数估值。\n双击一行，查看该局每笔操作与当时歌词。");
         var grid = window.Controls.OfType<DataGridView>().Single();
         foreach (DataGridViewColumn c in grid.Columns) c.SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -120,7 +112,7 @@ public sealed class PaperTradingForm : Form
             if (e.RowIndex < 0 || e.RowIndex >= records.Length) return;
             var r = records[e.RowIndex];
             PlaygroundUi.ShowRows(window, "操作回顾 · " + r.Song,
-                r.Fills.Select(f => new { 秒数 = f.Seconds.ToString("F1"), 操作 = f.Side, 数量 = f.Quantity, 指数 = f.Price.ToString("F2"), 权益 = f.Equity.ToString("F2"), 歌词 = f.Lyric }).ToArray(),
+                r.Fills.Select(f => new { 秒数 = f.Seconds.ToString("F1"), 操作 = f.Side, 杠杆 = f.Leverage + "×", 数量 = f.Quantity, 指数 = f.Price.ToString("F2"), 已实现盈亏 = f.RealizedProfit?.ToString("F2") ?? "--", 权益 = f.Equity.ToString("F2"), 歌词 = f.Lyric }).ToArray(),
                 $"{r.Song} · 结束权益 {r.FinalEquity:N2} · 收益 {(r.FinalEquity / PaperTrading.StartingCash - 1):P2}");
         };
     }

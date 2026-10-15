@@ -642,6 +642,7 @@ public sealed partial class Form1 : Form
             {
                 UpdateDayKRolling();
                 UpdateMinuteLine();
+                UpdateTradingRisk();
                 SampleSongRecording();
             }
             if (hasAudioSignal) UpdateDisplayRange();

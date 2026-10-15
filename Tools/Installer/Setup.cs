@@ -152,7 +152,7 @@ partial class Setup : Form
             string menu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "MusicTide");
             Directory.CreateDirectory(menu); MakeShortcut(Path.Combine(menu, "音潮行情.lnk"), app);
         }
-        File.WriteAllText(Path.Combine(root, "installation.txt"), "MusicTide 0.9.11\r\nPrivate .NET 9.0.20\r\nOllama CPU\r\nModel " + Model + "\r\n" + DateTime.Now.ToString("s"));
+        File.WriteAllText(Path.Combine(root, "installation.txt"), "MusicTide 0.9.12\r\nPrivate .NET 9.0.20\r\nOllama CPU\r\nModel " + Model + "\r\n" + DateTime.Now.ToString("s"));
         report("完成：" + Path.Combine(app, "MusicTide.exe"));
     }
 
@@ -196,7 +196,7 @@ partial class Setup : Form
                 long offset = File.Exists(partial) ? new FileInfo(partial).Length : 0;
                 var request = (HttpWebRequest)WebRequest.Create(url);
                 request.Timeout = 30000; request.ReadWriteTimeout = 30000;
-                request.UserAgent = "MusicTideSetup/0.9.11";
+                request.UserAgent = "MusicTideSetup/0.9.12";
                 if (offset > 0) request.AddRange(offset);
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {

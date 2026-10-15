@@ -1,11 +1,11 @@
 # 发布文件
 
-当前版本 **v0.9.11**。本目录只保留最新交付物，中间素材位于 `../Build/Installer`。
+当前版本 **v0.9.12**。本目录只保留最新交付物，中间素材位于 `../Build/Installer`。
 
 | 文件 | 内容 |
 |---|---|
-| `MusicTideSetup-v0.9.11.exe` | Windows x64 一键安装器，支持完整／离线安装 |
-| `MusicTide-Source-v0.9.11.zip` | 干净源码、文档及非商业许可 |
+| `MusicTideSetup-v0.9.12.exe` | Windows x64 一键安装器，支持完整／离线安装 |
+| `MusicTide-Source-v0.9.12.zip` | 干净源码、文档及非商业许可 |
 | `Setup-SHA256.json` / `Source-SHA256.json` | 对应文件的 SHA256 |
 
 ## 安装

@@ -62,3 +62,4 @@ dotnet run --project Tools/PlaybackTimeProbe -c Release
 `dotnet run --project Tools/OllamaEmotionProbe -c Release`：调用真实本机模型检查情绪程度与秒数映射，并分析发布目录中的已听片段。模型返回的有效规则写到 `Docs/Diagnostics/Emotion_RealModelSuggestions.json`，不会将歌词发送到远程接口。
 
 加 `-- --apply` 会将有效建议合并到发布版规则设置，保留手动规则；默认只验证并生成日志与预览。
+TradingVerification：34项杠杆/做空、资金守恒、平仓、强平、旧记录、底部点击及切歌检查。

@@ -1,6 +1,6 @@
 # 音潮行情 · MusicTide
 
-**v0.9.11 · Windows 音乐行情桌面程序 · 源码公开，限非商业使用**
+**v0.9.12 · Windows 音乐行情桌面程序 · 源码公开，限非商业使用**
 
 把电脑正在播放的音乐转换为实时频谱、虚拟股票行情和 K 线，配合歌词资讯、本机 AI 情绪学习、高潮连板及歌曲对比。支持拖到 USB／HDMI 副屏并全屏显示。
 
@@ -12,10 +12,10 @@
 
 | 交付物 | 用途 |
 |---|---|
-| [MusicTideSetup-v0.9.11.exe](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/MusicTideSetup-v0.9.11.exe) | 普通用户一键安装；自带私有 .NET 和 Ollama CPU 引擎 |
-| [MusicTide-Source-v0.9.11.zip](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/MusicTide-Source-v0.9.11.zip) | 源码、文档、许可及工具；不含模型、用户数据和构建缓存 |
+| [MusicTideSetup-v0.9.12.exe](https://github.com/saixs8/MusicTide/releases/download/v0.9.12/MusicTideSetup-v0.9.12.exe) | 普通用户一键安装；自带私有 .NET 和 Ollama CPU 引擎 |
+| [MusicTide-Source-v0.9.12.zip](https://github.com/saixs8/MusicTide/releases/download/v0.9.12/MusicTide-Source-v0.9.12.zip) | 源码、文档、许可及工具；不含模型、用户数据和构建缓存 |
 | `Output-Major/MusicTide.exe` | 本地手动发布版；需 .NET 9 Desktop Runtime，复制时保留同目录依赖 |
-| [Setup-SHA256.json](https://github.com/saixs8/MusicTide/releases/download/v0.9.11/Setup-SHA256.json) | 安装包 SHA256 校验记录 |
+| [Setup-SHA256.json](https://github.com/saixs8/MusicTide/releases/download/v0.9.12/Setup-SHA256.json) | 安装包 SHA256 校验记录 |
 
 运行环境：Windows 10 2004／19041 或更新、Windows 11，Intel／AMD x64。ARM64 原生运行未验证。开发需 .NET 9 SDK。
 
@@ -125,5 +125,13 @@ MusicTide/
 
 本项目自己的代码使用 [非商业源码许可](LICENSE)。.NET、Ollama、Qwen 模型及底层库按各自原许可分发；歌词、音乐及第三方品牌不由本项目重新授权。详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
-### v0.9.11 安装向导
+### v0.9.12 安装向导
 安装目录可以手工输入或通过浏览选择。界面采用深色风格、青色主按钮，显示组件选择、安装阶段、模型下载百分比/大小/速度，日志可展开。安装完成后点击启动。安装器窗口、EXE、顶部 Logo 与快捷方式使用音潮行情图标。AI 补装沿用当前安装目录。
+
+### v0.9.12 模拟交易工作栏
+
+主界面最底部新增交易工作栏，下单不打开新窗口。选择1/2/3/5/10倍杠杆和25%/50%/100%比例，支持开多、开空、按比例平仓和全部平仓。持仓期间锁定杠杆，反向开仓需先平仓。比例在开仓时表示可用保证金比例，平仓时表示持仓比例；1倍也可做空。
+
+工作栏显示统一交易价、可用资金、占用保证金、权益、方向、成本、已实现和浮动盈亏；切换图表不改变交易计价基准。盈亏明细窗口只查看持仓、成交和历史，不下单。
+
+采用全仓保证金：权益=可用资金+占用保证金+浮动盈亏；多仓浮盈=数量×(现价−成本)，空仓相反。权益≤占用保证金20%时按采样现价强平；跳空可能产生负权益，不补偿或隐藏模拟亏损。无手续费、利息和滑点，切歌和新一局重置模拟账户，历史保留。旧记录缺失的单笔盈亏显示--。无声或暂停不能下单。

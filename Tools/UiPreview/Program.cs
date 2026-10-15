@@ -20,6 +20,10 @@ class Preview
         Set(form,"volumeAvailable",true); Set(form,"playerVolume",.65f);
         Set(form,"currentLyric","让音乐的每一次起伏，都成为眼前的行情");
         Set(form,"simulationMode",true);
+        Set(form,"hasAudioSignal",true); Set(form,"trackIsPlaying",true);
+        var account=(PaperTrading)Field("paperTrading").GetValue(form)!;
+        double price=(double)typeof(Form1).GetProperty("CurrentMusicPrice",Flags)!.GetValue(form)!;
+        account.SetLeverage(3); account.Short(price*1.02,.5,89,"演示开空");
         Set(form,"songPositionSeconds",93d); Set(form,"lastTrackPositionSeconds",93d);
         Set(form,"songDurationSeconds",243d); Set(form,"displayRange",.2f);
         Set(form,"lyricTimeline",new TimedLyricLine[]{new(0,"音乐律动 · 歌词资讯演示"),new(12,"让音乐的每一次起伏"),new(24,"都成为眼前的行情"),new(42,"低音在夜色中回响"),new(66,"旋律沿着时间向前"),new(89,"此刻的歌声，正在播放"),new(105,"下一句，将随进度自动点亮"),new(132,"所有歌词，依次排列")});

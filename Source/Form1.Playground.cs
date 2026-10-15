@@ -64,7 +64,7 @@ public sealed partial class Form1
     private void SaveTradeRound()
     {
         if (paperTrading.Fills.Count == 0) return;
-        tradeRounds.Add(new(currentTrackTitle, tradeStartedAt, paperTrading.Equity(CurrentMusicPrice), paperTrading.Fills.ToArray()));
+        tradeRounds.Add(CurrentTradeRound());
         if (tradeRounds.Count > 200) tradeRounds.RemoveAt(0);
         SavePlayJson(Path.Combine(PlayDataDirectory, "trades.json"), tradeRounds);
     }
@@ -94,7 +94,7 @@ public sealed partial class Form1
     {
         menu.DropDownItems.Add(new ToolStripSeparator());
         menu.DropDownItems.Add("歌曲擂台…", null, (_, _) => OpenArena());
-        menu.DropDownItems.Add("虚拟打板挑战…", null, (_, _) => OpenPaperTrading());
+        menu.DropDownItems.Add("模拟交易 · 盈亏明细…", null, (_, _) => OpenPaperTrading());
         AddToggle("多空拉锯 · 低频多头 / 高频空头", s => s.BullBear, (s, value) => s with { BullBear = value });
         AddToggle("歌曲盲盒 · 每首随机行情性格", s => s.BlindBox, (s, value) => s with { BlindBox = value });
         menu.DropDownItems.Add("重新抽取当前歌曲盲盒", null, (_, _) =>
@@ -146,15 +146,10 @@ public sealed partial class Form1
     }
     private void OpenPaperTrading()
     {
-        new PaperTradingForm(paperTrading, () => (currentTrackTitle, CurrentMusicPrice, GetPlaybackPositionSeconds(), trackIsPlaying && timelineCandleCount > 0 && currentTrackTitle is not ("等待歌曲" or "未知歌曲")),
-            (buy, fraction) =>
-            {
-                if (!trackIsPlaying || timelineCandleCount == 0 || currentTrackTitle is "等待歌曲" or "未知歌曲") return false;
-                bool ok = buy ? paperTrading.Buy(CurrentMusicPrice, fraction, GetPlaybackPositionSeconds(), currentLyric)
-                    : paperTrading.Sell(CurrentMusicPrice, GetPlaybackPositionSeconds(), currentLyric);
-                if (ok) SavePlayJson(Path.Combine(PlayDataDirectory, "active-trade.json"), new TradeRound(currentTrackTitle, recordingAt, paperTrading.Equity(CurrentMusicPrice), paperTrading.Fills.ToArray()));
-                return ok;
-            }, () => { SaveTradeRound(); paperTrading.Reset(); tradeStartedAt = DateTime.Now; }, () => tradeRounds.ToArray()).Show(this);
+        if (tradingDetails is { IsDisposed: false }) { tradingDetails.Activate(); return; }
+        tradingDetails = new PaperTradingForm(paperTrading, () => (currentTrackTitle, CurrentMusicPrice, GetPlaybackPositionSeconds(), CanTrade),
+            () => tradeRounds.ToArray());
+        tradingDetails.Show(this);
     }
     private void EditLyricRules()
     {

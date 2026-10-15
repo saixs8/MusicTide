@@ -19,7 +19,7 @@ partial class Setup
     void BuildInterface(bool locked)
     {
         fixedTarget = locked;
-        Text = "音潮行情 · 安装向导 v0.9.11";
+        Text = "音潮行情 · 安装向导 v0.9.12";
         ClientSize = new Size(760, 620); FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false; StartPosition = FormStartPosition.CenterScreen;
         BackColor = background; ForeColor = Color.White;

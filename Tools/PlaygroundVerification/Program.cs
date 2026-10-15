@@ -90,7 +90,7 @@ class Verify
         Check(ArenaScore.Calculate(a with { Samples = [] }).Total == 0, "arena safely handles empty record");
         using (var arena = new SongArenaForm([a, b])) { Preview(arena, "Playground_Arena"); arena.Close(); }
         wallet.Buy(100, .5, 30, "让梦想燃烧"); wallet.Sell(120, 60, "奔向远方");
-        using (var trading = new PaperTradingForm(wallet, () => (a.Title, 120, 60, true), (_, _) => false, wallet.Reset, () => []))
+        using (var trading = new PaperTradingForm(wallet, () => (a.Title, 120, 60, true), () => []))
         {
             Preview(trading, "Playground_Trading");
             typeof(PaperTradingForm).GetMethod("ShowTradeHistory", Flags)!.Invoke(trading, new object[] { new[] { new TradeRound(a.Title, DateTime.Now, 110000, wallet.Fills.ToArray()) } });
@@ -135,7 +135,7 @@ class Verify
             Check(game.Settings.Rules?.Length == MusicPlayground.DefaultRules.Length, "custom keyword rules persist with settings");
             game.Reset(); Set("lyricTimeline", Array.Empty<TimedLyricLine>()); Set("activeLyricIndex", -1);
             var liveLyrics = (List<TimedLyricLine>)F("liveLyricHistory").GetValue(form)!;
-            liveLyrics.Clear(); liveLyrics.Add(new(0, "让梦想燃烧")); Set("currentLyric", "让梦想燃烧"); Set("trackIsPlaying", true); Call("ObserveMusicEnergy");
+            liveLyrics.Clear(); liveLyrics.Add(new(0, "让梦想燃烧")); Set("currentLyric", "让梦想燃烧"); Set("trackIsPlaying", true); Set("hasAudioSignal", true); Call("ObserveMusicEnergy");
             Check(game.Events.Any(e => e.Name.Contains("歌词事件")), "live captured lyric without full timeline can still trigger keyword card");
             var market = (ClimaxMarket)F("climaxMarket").GetValue(form)!;
             market.Reset(); market.Settings = new(TriggerProbability: 1, OneWordProbability: 1, MinimumBoards: 5, MaximumBoards: 5, BreakProbabilityPerSecond: 0);

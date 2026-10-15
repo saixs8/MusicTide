@@ -38,6 +38,7 @@ public sealed partial class Form1
     private void OnTerminalMouseDown(object? sender, MouseEventArgs e)
     {
         stage.Focus();
+        if (HandleTradingClick(e)) return;
         if (HandlePlaybackClick(e)) return;
         if (indicatorPaneBounds.Any(p => p.Contains(e.Location) && e.Y < p.Top + 20) && HandleIndicatorClick(e)) return;
         if (HandleDayNavigationClick(e)) return;
@@ -167,13 +168,14 @@ public sealed partial class Form1
         DrawPlaybackHeader(g, musicWidth);
         DrawMarketOverview(g, new Rectangle(musicWidth + 5, 4, bounds.Width - musicWidth - 10, 84));
         int lyricHeight = lyricsVisible ? (Math.Clamp((int)(bounds.Height * 0.18), 116, 150)) : 0;
-        int mainBottom = bounds.Height - 27 - lyricHeight - 8;
+        int mainBottom = bounds.Height - 27 - TradingBarHeight - lyricHeight - 8;
         int tableWidth = Math.Clamp((int)(bounds.Width * 0.30), 300, 390);
         quoteBounds = new Rectangle(5, 94, tableWidth, Math.Max(140, mainBottom - 94));
         var chart = new Rectangle(quoteBounds.Right + 5, 94, bounds.Width - quoteBounds.Right - 10, quoteBounds.Height);
         DrawQuoteTable(g, quoteBounds);
         DrawTerminalChart(g, chart);
         if (lyricsVisible) DrawTerminalLyrics(g, new Rectangle(7, mainBottom + 4, bounds.Width - 14, lyricHeight - 4));
+        DrawTradingBar(g, new Rectangle(0, bounds.Height - 27 - TradingBarHeight, bounds.Width, TradingBarHeight));
         DrawTerminalTicker(g, new Rectangle(0, bounds.Height - 27, bounds.Width, 27));
     }
 
