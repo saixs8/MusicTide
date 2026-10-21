@@ -3,6 +3,8 @@
 使用说明以项目根目录 [README](../README.md) 为准；本目录保存各版本实现与验证记录。
 
 ## 功能与验证
+
+[简体中文 README](../README.md) · [English README](../README.en.md)
  
 当前入口： [完整使用指南](UserGuide.md) · [开发与发布](Development.md) · [数据与隐私](Privacy.md) · [非商业许可](../LICENSE) · [第三方声明](../THIRD_PARTY_NOTICES.md)。
 

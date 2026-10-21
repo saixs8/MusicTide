@@ -9,7 +9,7 @@ $release=Join-Path $projectRoot 'Distribution'
 New-Item -ItemType Directory -Path $release -Force | Out-Null
 $target=Join-Path $release "MusicTide-Source-v$version.zip"
 $pending=Join-Path $release 'MusicTide-Source-building.zip'
-$files=@('README.md','LICENSE','THIRD_PARTY_NOTICES.md','CONTRIBUTING.md','CHANGELOG.md','.gitignore',
+$files=@('README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','CONTRIBUTING.md','CHANGELOG.md','.gitignore',
     'Distribution/README.md','Docs/README.md','Docs/UserGuide.md','Docs/Development.md','Docs/Privacy.md',
     'Docs/USBSideScreenPlan.md','Tools/README.md','Tools/Installer/model.json')
 $files+=Get-ChildItem -LiteralPath (Join-Path $projectRoot 'Docs') -File -Filter '*.md' | ForEach-Object { 'Docs/'+$_.Name }

@@ -1,5 +1,7 @@
 # 音潮行情 · MusicTide
 
+**简体中文** | [English](README.en.md)
+
 **v0.9.12 · Windows 音乐行情桌面程序 · 源码公开，限非商业使用**
 
 把电脑正在播放的音乐转换为实时频谱、虚拟股票行情和 K 线，配合歌词资讯、本机 AI 情绪学习、高潮连板及歌曲对比。支持拖到 USB／HDMI 副屏并全屏显示。
@@ -50,6 +52,7 @@
 | 歌曲历史 | 默认保留 20 首，可设 1–1000 首；每首最多 5 版叠加，优先保留重复次数多的歌 |
 | 每歌采样 | 新歌及完整循环时随机选择行情与对比频段，两路不同，避免与上一轮重复 |
 | 歌词学习 | 默认 5 个关键词；从已听片段学习，本地 Ollama 按情绪程度生成 2–12 秒影响时间 |
+| 模拟交易 | 底部工作栏开多、开空及平仓，1/2/3/5/10 倍杠杆；独立只读窗口查看盈亏及历史 |
 | 音乐玩法 | 双歌对比、歌曲擂台、虚拟打板、多空拉锯、正负盲盒、副歌返场、歌词事件牌和成就 |
 | 高潮连板 | 高潮可随机连续涨停或跌停，一首歌最多触发一组；支持一字板和跳空及低概率炸板 |
 | 无声处理 | 行情和动画停止，实时能量归零；恢复声音后继续，不补出静音期间 K 柱 |
@@ -94,9 +97,12 @@ dotnet build Source/SpectrumKlinePlayer.csproj -c Release
 dotnet publish Source/SpectrumKlinePlayer.csproj -c Release -o Output-Major
 dotnet run --project Tools/SilenceVerification -c Release
 dotnet run --project Tools/MultiPlayerVerification -c Release
+dotnet run --project Tools/TradingVerification -c Release
 ```
 
 [开发与打包指南](Docs/Development.md)说明源码构建、安装器素材准备及源码包生成。主程序可独立构建；完整安装器需要额外准备官方运行时素材。当前记录：18 项静音／离线提醒检查、28 项歌词回归以及多播放器适配验证；这些不等于所有第三方客户端现场验证。
+
+v0.9.12 另有 34 项交易检查、65 项玩法回归，以及最小窗口四副图与固定量能布局检查，见 [交易工作栏验证](Docs/TradingWorkbarVerification.md)。英文说明见 [English README](README.en.md)；软件界面和多数详细文档目前仍为中文。
 
 贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。源码仓库：[saixs8/MusicTide](https://github.com/saixs8/MusicTide)，安装包见 [Releases](https://github.com/saixs8/MusicTide/releases)。
 
@@ -104,7 +110,7 @@ dotnet run --project Tools/MultiPlayerVerification -c Release
 
 ```text
 MusicTide/
-├── README.md / LICENSE / THIRD_PARTY_NOTICES.md / CONTRIBUTING.md
+├── README.md / README.en.md / LICENSE / THIRD_PARTY_NOTICES.md / CONTRIBUTING.md
 ├── Source/         主程序源码与图标
 ├── Tools/          构建、验证、诊断工具源码
 ├── Docs/           使用、开发、隐私及验证记录
